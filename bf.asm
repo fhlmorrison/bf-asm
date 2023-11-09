@@ -40,10 +40,10 @@ macro exit code {
 segment readable executable
 entry main
 main:
-    ;; read from stdin
-
-    push qword buf
-
+    ;; Initialize the pointer
+    mov r9, buf
+    
+read_loop:
     read STDIN, msg, msg.len
     ;; write STDOUT, msg, msg.len
 
@@ -64,41 +64,40 @@ main:
 
     ;; Keep reading until we get a newline
     cmp [msg], byte 10
-    jne main
+    jne read_loop
     je clean_exit
 plus: 
     ;; add 1 to the number
     ;write STDOUT, info_plus, info_plus.len
-    inc byte [buf]
-    jmp main
+    inc byte [r9]
+    jmp read_loop
 minus:
     ;; subtract 1 from the number
     ;write STDOUT, info_minus, info_minus.len
-    dec byte [buf]
-    jmp main
+    dec byte [r9]
+    jmp read_loop
 left:
     ;; move the pointer left
     ;write STDOUT, info_left, info_left.len
-    dec qword [rsp]
-    cmp qword [rsp], buf
-    jnb main
+    dec r9
+    cmp r9, buf
+    jae read_loop
     write 1, error_index, error_index.len
     exit -1
 right:
     ;; move the pointer right
     ;write STDOUT, info_right, info_right.len
-    inc qword [rsp]
-    cmp qword [rsp], buf + 30000
-    jb main
+    inc qword r9
+    cmp qword r9, buf + 30000
+    jb read_loop
     write 1, error_index, error_index.len
     exit -1
 print:
     ;; print the number
     ;write STDOUT, info_print, info_print.len
     write STDOUT, buf, 1
-    mov r8, [rsp]
-    write 1, [r8], 1
-    jmp main
+    write 1, [r9], 1
+    jmp read_loop
 
 clean_exit:
     ;; exit
