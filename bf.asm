@@ -95,8 +95,7 @@ right:
 print:
     ;; print the number
     ;write STDOUT, info_print, info_print.len
-    write STDOUT, buf, 1
-    write 1, [r9], 1
+    write STDOUT, r9, 1
     jmp read_loop
 
 clean_exit:
